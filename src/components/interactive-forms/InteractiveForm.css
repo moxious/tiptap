@@ -1,0 +1,152 @@
+.interactive-form {
+  padding: 16px;
+  min-width: 320px;
+  max-width: 400px;
+}
+
+.interactive-form h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #202124;
+}
+
+.form-description {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  color: #5f6368;
+}
+
+.form-field {
+  margin-bottom: 16px;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #3c4043;
+}
+
+.form-field input[type="text"] {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-field input[type="text"]:focus {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 1px #1a73e8;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #5f6368;
+}
+
+.common-options {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.option-chip {
+  padding: 4px 10px;
+  background: #f1f3f4;
+  border: 1px solid #dadce0;
+  border-radius: 16px;
+  font-size: 12px;
+  color: #3c4043;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.option-chip:hover {
+  background: #e8eaed;
+  border-color: #bdc1c6;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #3c4043;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.info-box {
+  background: #e8f0fe;
+  border-left: 3px solid #1a73e8;
+  padding: 12px;
+  margin: 16px 0;
+  font-size: 13px;
+  color: #174ea6;
+  border-radius: 4px;
+}
+
+.info-box strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #dadce0;
+}
+
+.btn-cancel,
+.btn-apply {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: transparent;
+  color: #1a73e8;
+}
+
+.btn-cancel:hover {
+  background: #f1f3f4;
+}
+
+.btn-apply {
+  background: #1a73e8;
+  color: white;
+}
+
+.btn-apply:hover:not(:disabled) {
+  background: #1765cc;
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+}
+
+.btn-apply:disabled {
+  background: #dadce0;
+  color: #80868b;
+  cursor: not-allowed;
+}
+
