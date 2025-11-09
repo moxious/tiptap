@@ -1,7 +1,6 @@
-import { useEffect } from 'react'
+import { useState } from 'react'
 import { Editor } from '@tiptap/react'
 import { type EditStateOrNull } from '../types'
-import { usePopoverManager } from '../hooks/usePopoverManager'
 import HeadingDropdown from './dropdowns/HeadingDropdown'
 import FormatDropdown from './dropdowns/FormatDropdown'
 import ListDropdown from './dropdowns/ListDropdown'
@@ -16,41 +15,50 @@ interface ToolbarProps {
 }
 
 const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
-  // Use popover manager to coordinate multiple popovers
-  const { popovers, open, close } = usePopoverManager(['interactive', 'sequence'])
+  // Track toolbar-initiated popover opening
+  const [toolbarPopover, setToolbarPopover] = useState<{
+    type: 'interactive' | 'sequence'
+    anchor: HTMLElement
+  } | null>(null)
 
-  // Open appropriate popover when editState changes
-  useEffect(() => {
-    if (editState) {
-      if (editState.type === 'sequence') {
-        // For sequence, open the sequence popover
-        open('sequence', document.body)
-      } else if (editState.type === 'listItem' || editState.type === 'span' || editState.type === 'comment') {
-        // For other interactive elements, open interactive popover
-        open('interactive', document.body)
-      }
-    }
-  }, [editState, open])
+  // Derive popover open states from both editState and toolbarPopover
+  // Interactive popover opens for listItem, span, comment via editState OR toolbar button
+  const interactivePopoverOpen = 
+    (editState && ['listItem', 'span', 'comment'].includes(editState.type)) ||
+    toolbarPopover?.type === 'interactive'
+  
+  const sequencePopoverOpen = 
+    editState?.type === 'sequence' || 
+    toolbarPopover?.type === 'sequence'
+
+  // Derive anchor elements (editState takes priority over toolbar clicks)
+  const interactiveAnchor = editState && ['listItem', 'span', 'comment'].includes(editState.type)
+    ? document.body
+    : toolbarPopover?.type === 'interactive' ? toolbarPopover.anchor : null
+  
+  const sequenceAnchor = editState?.type === 'sequence'
+    ? document.body  
+    : toolbarPopover?.type === 'sequence' ? toolbarPopover.anchor : null
 
   if (!editor) {
     return null
   }
 
   const handleInteractiveClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    open('interactive', event.currentTarget)
+    setToolbarPopover({ type: 'interactive', anchor: event.currentTarget })
   }
 
   const handleSequenceClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    open('sequence', event.currentTarget)
+    setToolbarPopover({ type: 'sequence', anchor: event.currentTarget })
   }
 
   const handlePopoverClose = () => {
-    close('interactive')
+    setToolbarPopover(null)
     onCloseEdit?.()
   }
 
   const handleSequencePopoverClose = () => {
-    close('sequence')
+    setToolbarPopover(null)
     onCloseEdit?.()
   }
 
@@ -137,17 +145,17 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
 
       <InteractiveSettingsPopover
         editor={editor}
-        isOpen={popovers.interactive.isOpen}
+        isOpen={interactivePopoverOpen}
         onClose={handlePopoverClose}
-        anchorEl={popovers.interactive.anchorEl}
+        anchorEl={interactiveAnchor}
         editState={editState && (editState.type === 'listItem' || editState.type === 'span' || editState.type === 'comment') ? editState : null}
       />
 
       <SequencePopover
         editor={editor}
-        isOpen={popovers.sequence.isOpen}
+        isOpen={sequencePopoverOpen}
         onClose={handleSequencePopoverClose}
-        anchorEl={popovers.sequence.anchorEl}
+        anchorEl={sequenceAnchor}
         editState={editState && editState.type === 'sequence' ? editState : null}
       />
     </>
