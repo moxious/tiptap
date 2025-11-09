@@ -1,4 +1,6 @@
 import { Node, mergeAttributes } from '@tiptap/core'
+import { createClassAttribute } from './shared/attributes'
+import { createSpanNodeView } from './shared/nodeViewFactory'
 
 export interface InteractiveCommentOptions {
   HTMLAttributes: Record<string, any>
@@ -31,13 +33,7 @@ export const InteractiveComment = Node.create<InteractiveCommentOptions>({
 
   addAttributes() {
     return {
-      class: {
-        default: 'interactive-comment',
-        parseHTML: element => element.getAttribute('class') || 'interactive-comment',
-        renderHTML: attributes => {
-          return { class: attributes.class || 'interactive-comment' }
-        },
-      },
+      class: createClassAttribute('interactive-comment'),
     }
   },
 
@@ -55,29 +51,7 @@ export const InteractiveComment = Node.create<InteractiveCommentOptions>({
 
   addNodeView() {
     return ({ HTMLAttributes }) => {
-      const span = document.createElement('span')
-      
-      // Apply all HTML attributes
-      Object.entries(HTMLAttributes).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          span.setAttribute(key, String(value))
-        }
-      })
-
-      // Create and append lightning bolt
-      const lightning = document.createElement('span')
-      lightning.className = 'interactive-lightning'
-      lightning.textContent = '⚡'
-      span.appendChild(lightning)
-
-      // Create content wrapper
-      const contentDOM = document.createElement('span')
-      span.appendChild(contentDOM)
-
-      return {
-        dom: span,
-        contentDOM,
-      }
+      return createSpanNodeView(HTMLAttributes, true)
     }
   },
 

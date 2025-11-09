@@ -1,5 +1,13 @@
 import { mergeAttributes, Node } from '@tiptap/core'
 import ListItem from '@tiptap/extension-list-item'
+import {
+  createClassAttribute,
+  createTargetActionAttribute,
+  createRefTargetAttribute,
+  createRequirementsAttribute,
+  createDoItAttribute,
+} from './shared/attributes'
+import { createListItemNodeView } from './shared/nodeViewFactory'
 
 export interface InteractiveListItemOptions {
   HTMLAttributes: Record<string, any>
@@ -25,87 +33,17 @@ export const InteractiveListItem = ListItem.extend<InteractiveListItemOptions>({
   addAttributes() {
     return {
       ...this.parent?.(),
-      class: {
-        default: null,
-        parseHTML: element => element.getAttribute('class'),
-        renderHTML: attributes => {
-          if (!attributes.class) {
-            return {}
-          }
-          return { class: attributes.class }
-        },
-      },
-      'data-targetaction': {
-        default: null,
-        parseHTML: element => element.getAttribute('data-targetaction'),
-        renderHTML: attributes => {
-          if (!attributes['data-targetaction']) {
-            return {}
-          }
-          return { 'data-targetaction': attributes['data-targetaction'] }
-        },
-      },
-      'data-reftarget': {
-        default: null,
-        parseHTML: element => element.getAttribute('data-reftarget'),
-        renderHTML: attributes => {
-          if (!attributes['data-reftarget']) {
-            return {}
-          }
-          return { 'data-reftarget': attributes['data-reftarget'] }
-        },
-      },
-      'data-requirements': {
-        default: null,
-        parseHTML: element => element.getAttribute('data-requirements'),
-        renderHTML: attributes => {
-          if (!attributes['data-requirements']) {
-            return {}
-          }
-          return { 'data-requirements': attributes['data-requirements'] }
-        },
-      },
-      'data-doit': {
-        default: null,
-        parseHTML: element => element.getAttribute('data-doit'),
-        renderHTML: attributes => {
-          if (!attributes['data-doit']) {
-            return {}
-          }
-          return { 'data-doit': attributes['data-doit'] }
-        },
-      },
+      class: createClassAttribute(null),
+      'data-targetaction': createTargetActionAttribute(),
+      'data-reftarget': createRefTargetAttribute(),
+      'data-requirements': createRequirementsAttribute(),
+      'data-doit': createDoItAttribute(),
     }
   },
 
   addNodeView() {
     return ({ node, HTMLAttributes }) => {
-      const li = document.createElement('li')
-      
-      // Apply all HTML attributes
-      Object.entries(HTMLAttributes).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          li.setAttribute(key, String(value))
-        }
-      })
-
-      // Only add lightning bolt if this is an interactive list item
-      if (node.attrs.class?.includes('interactive')) {
-        const lightning = document.createElement('span')
-        lightning.className = 'interactive-lightning'
-        lightning.textContent = '⚡'
-        li.appendChild(lightning)
-      }
-
-      // Create content wrapper
-      const contentDOM = document.createElement('div')
-      contentDOM.style.display = 'contents'
-      li.appendChild(contentDOM)
-
-      return {
-        dom: li,
-        contentDOM,
-      }
+      return createListItemNodeView(HTMLAttributes)
     }
   },
 

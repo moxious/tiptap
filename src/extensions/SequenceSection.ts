@@ -1,4 +1,12 @@
 import { Node, mergeAttributes } from '@tiptap/core'
+import {
+  createIdAttribute,
+  createClassAttribute,
+  createTargetActionAttribute,
+  createRefTargetAttribute,
+  createRequirementsAttribute,
+} from './shared/attributes'
+import { createSequenceSectionNodeView } from './shared/nodeViewFactory'
 
 export interface SequenceSectionOptions {
   HTMLAttributes: Record<string, any>
@@ -28,44 +36,11 @@ export const SequenceSection = Node.create<SequenceSectionOptions>({
   
   addAttributes() {
     return {
-      id: {
-        default: null,
-        parseHTML: element => element.getAttribute('id'),
-        renderHTML: attributes => {
-          if (!attributes.id) return {}
-          return { id: attributes.id }
-        },
-      },
-      class: {
-        default: 'interactive',
-        parseHTML: element => element.getAttribute('class'),
-        renderHTML: attributes => ({
-          class: attributes.class || 'interactive'
-        }),
-      },
-      'data-targetaction': {
-        default: 'sequence',
-        parseHTML: element => element.getAttribute('data-targetaction'),
-        renderHTML: attributes => ({
-          'data-targetaction': attributes['data-targetaction'] || 'sequence'
-        }),
-      },
-      'data-reftarget': {
-        default: null,
-        parseHTML: element => element.getAttribute('data-reftarget'),
-        renderHTML: attributes => {
-          if (!attributes['data-reftarget']) return {}
-          return { 'data-reftarget': attributes['data-reftarget'] }
-        },
-      },
-      'data-requirements': {
-        default: null,
-        parseHTML: element => element.getAttribute('data-requirements'),
-        renderHTML: attributes => {
-          if (!attributes['data-requirements']) return {}
-          return { 'data-requirements': attributes['data-requirements'] }
-        },
-      },
+      id: createIdAttribute(),
+      class: createClassAttribute('interactive'),
+      'data-targetaction': createTargetActionAttribute('sequence'),
+      'data-reftarget': createRefTargetAttribute(),
+      'data-requirements': createRequirementsAttribute(),
     }
   },
   
@@ -88,28 +63,7 @@ export const SequenceSection = Node.create<SequenceSectionOptions>({
 
   addNodeView() {
     return ({ HTMLAttributes }) => {
-      const dom = document.createElement('span')
-      Object.entries(HTMLAttributes).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          dom.setAttribute(key, String(value))
-        }
-      })
-
-      // Create and append lightning bolt
-      const lightning = document.createElement('span')
-      lightning.className = 'interactive-lightning'
-      lightning.textContent = '⚡'
-      dom.appendChild(lightning)
-
-      // Create content wrapper
-      const contentDOM = document.createElement('div')
-      contentDOM.style.display = 'contents'
-      dom.appendChild(contentDOM)
-
-      return {
-        dom,
-        contentDOM,
-      }
+      return createSequenceSectionNodeView(HTMLAttributes)
     }
   },
   

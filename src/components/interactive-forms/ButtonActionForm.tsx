@@ -1,76 +1,39 @@
-import { useState } from 'react'
-import { type InteractiveFormProps, COMMON_REQUIREMENTS } from './types'
-import './InteractiveForm.css'
+import { type InteractiveFormProps } from './types'
+import BaseInteractiveForm, { type BaseInteractiveFormConfig } from './BaseInteractiveForm'
 
-const ButtonActionForm = ({ editor, onApply, onCancel, initialValues }: InteractiveFormProps) => {
-  const [buttonText, setButtonText] = useState(initialValues?.['data-reftarget'] || '')
-  const [requirements, setRequirements] = useState(initialValues?.['data-requirements'] || 'exists-reftarget')
+const config: BaseInteractiveFormConfig = {
+  title: 'Button Click Action',
+  description: 'Click a button with specific text',
+  actionType: 'button',
+  fields: [
+    {
+      id: 'data-reftarget',
+      label: 'Button Text:',
+      type: 'text',
+      placeholder: 'e.g., Save, Create, Submit',
+      hint: 'The exact text displayed on the button',
+      required: true,
+      autoFocus: true,
+    },
+    {
+      id: 'data-requirements',
+      label: 'Requirements:',
+      type: 'text',
+      placeholder: 'e.g., exists-reftarget',
+      defaultValue: 'exists-reftarget',
+      showCommonOptions: true,
+    },
+  ],
+  buildAttributes: (values) => ({
+    'data-targetaction': 'button',
+    'data-reftarget': values['data-reftarget'],
+    'data-requirements': values['data-requirements'],
+    class: 'interactive',
+  }),
+}
 
-  const handleApply = () => {
-    onApply({
-      'data-targetaction': 'button',
-      'data-reftarget': buttonText,
-      'data-requirements': requirements,
-      class: 'interactive',
-    })
-  }
-
-  return (
-    <div className="interactive-form">
-      <h4>Button Click Action</h4>
-      <p className="form-description">Click a button with specific text</p>
-      
-      <div className="form-field">
-        <label htmlFor="button-text">Button Text:</label>
-        <input
-          id="button-text"
-          type="text"
-          value={buttonText}
-          onChange={(e) => setButtonText(e.target.value)}
-          placeholder="e.g., Save, Create, Submit"
-          autoFocus
-        />
-        <span className="field-hint">The exact text displayed on the button</span>
-      </div>
-
-      <div className="form-field">
-        <label htmlFor="requirements">Requirements:</label>
-        <input
-          id="requirements"
-          type="text"
-          value={requirements}
-          onChange={(e) => setRequirements(e.target.value)}
-          placeholder="e.g., exists-reftarget"
-        />
-        <div className="common-options">
-          {COMMON_REQUIREMENTS.slice(0, 3).map(req => (
-            <button
-              key={req}
-              type="button"
-              className="option-chip"
-              onClick={() => setRequirements(req)}
-            >
-              {req}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="form-actions">
-        <button type="button" onClick={onCancel} className="btn-cancel">
-          Cancel
-        </button>
-        <button 
-          type="button" 
-          onClick={handleApply} 
-          className="btn-apply"
-          disabled={!buttonText}
-        >
-          Apply
-        </button>
-      </div>
-    </div>
-  )
+const ButtonActionForm = (props: InteractiveFormProps) => {
+  return <BaseInteractiveForm config={config} {...props} />
 }
 
 export default ButtonActionForm

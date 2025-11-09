@@ -1,12 +1,15 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Editor } from '@tiptap/react'
 import { type ActionType, type InteractiveAttributes } from './interactive-forms/types'
+import { type PartialEditState } from '../types'
 import ButtonActionForm from './interactive-forms/ButtonActionForm'
 import HighlightActionForm from './interactive-forms/HighlightActionForm'
 import FormFillActionForm from './interactive-forms/FormFillActionForm'
 import NavigateActionForm from './interactive-forms/NavigateActionForm'
 import HoverActionForm from './interactive-forms/HoverActionForm'
 import MultistepActionForm from './interactive-forms/MultistepActionForm'
+import ActionSelector from './interactive-forms/ActionSelector'
+import Popover from './common/Popover'
 import './InteractiveSettingsPopover.css'
 
 interface InteractiveSettingsPopoverProps {
@@ -14,11 +17,7 @@ interface InteractiveSettingsPopoverProps {
   isOpen: boolean
   onClose: () => void
   anchorEl: HTMLElement | null
-  editState?: {
-    type: 'listItem' | 'sequence' | 'span' | 'comment' | null
-    attrs: Record<string, any>
-    pos: number
-  } | null
+  editState?: PartialEditState
 }
 
 const InteractiveSettingsPopover = ({
@@ -29,7 +28,6 @@ const InteractiveSettingsPopover = ({
   editState,
 }: InteractiveSettingsPopoverProps) => {
   const [selectedAction, setSelectedAction] = useState<ActionType | ''>('')
-  const popoverRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!isOpen) {
@@ -42,36 +40,6 @@ const InteractiveSettingsPopover = ({
       }
     }
   }, [isOpen, editState])
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(event.target as Node)
-      ) {
-        // If anchor is document.body, we should close on any outside click
-        // Otherwise, also check if click is outside anchor
-        if (anchorEl === document.body || (anchorEl && !anchorEl.contains(event.target as Node))) {
-          onClose()
-        }
-      }
-    }
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose()
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('keydown', handleEscape)
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside)
-        document.removeEventListener('keydown', handleEscape)
-      }
-    }
-  }, [isOpen, onClose, anchorEl])
 
   const handleApply = (attributes: InteractiveAttributes) => {
     // Prepare all attributes
@@ -113,127 +81,44 @@ const InteractiveSettingsPopover = ({
     onClose()
   }
 
-  const handleCancel = () => {
-    onClose()
-  }
-
-  if (!isOpen || !anchorEl) {
-    return null
-  }
-
-  const renderForm = () => {
+  const renderContent = () => {
     const formProps = {
       editor,
       onApply: handleApply,
-      onCancel: handleCancel,
+      onCancel: onClose,
       initialValues: editState?.attrs,
     }
 
-    switch (selectedAction) {
-      case 'button':
-        return <ButtonActionForm {...formProps} />
-      case 'highlight':
-        return <HighlightActionForm {...formProps} />
-      case 'formfill':
-        return <FormFillActionForm {...formProps} />
-      case 'navigate':
-        return <NavigateActionForm {...formProps} />
-      case 'hover':
-        return <HoverActionForm {...formProps} />
-      case 'multistep':
-        return <MultistepActionForm {...formProps} />
-      default:
-        return (
-          <div className="action-selector">
-            <h4>Select Interactive Action</h4>
-            <p className="selector-description">Choose the type of interaction for this element</p>
-            <div className="action-grid">
-              <button
-                className="action-option"
-                onClick={() => setSelectedAction('button')}
-              >
-                <span className="action-icon">🔘</span>
-                <span className="action-name">Button</span>
-                <span className="action-desc">Click a button</span>
-              </button>
-              <button
-                className="action-option"
-                onClick={() => setSelectedAction('highlight')}
-              >
-                <span className="action-icon">✨</span>
-                <span className="action-name">Highlight</span>
-                <span className="action-desc">Highlight an element</span>
-              </button>
-              <button
-                className="action-option"
-                onClick={() => setSelectedAction('formfill')}
-              >
-                <span className="action-icon">📝</span>
-                <span className="action-name">Form Fill</span>
-                <span className="action-desc">Fill an input field</span>
-              </button>
-              <button
-                className="action-option"
-                onClick={() => setSelectedAction('navigate')}
-              >
-                <span className="action-icon">🧭</span>
-                <span className="action-name">Navigate</span>
-                <span className="action-desc">Go to a page</span>
-              </button>
-              <button
-                className="action-option"
-                onClick={() => setSelectedAction('hover')}
-              >
-                <span className="action-icon">👆</span>
-                <span className="action-name">Hover</span>
-                <span className="action-desc">Reveal on hover</span>
-              </button>
-              <button
-                className="action-option"
-                onClick={() => setSelectedAction('multistep')}
-              >
-                <span className="action-icon">📋</span>
-                <span className="action-name">Multistep</span>
-                <span className="action-desc">Multiple actions</span>
-              </button>
-            </div>
-            <div className="selector-actions">
-              <button onClick={onClose} className="btn-cancel">
-                Cancel
-              </button>
-            </div>
-          </div>
-        )
+    if (!selectedAction) {
+      return <ActionSelector onSelect={setSelectedAction} onCancel={onClose} />
     }
-  }
 
-  // Calculate position based on anchor element
-  const rect = anchorEl.getBoundingClientRect()
-  const style: React.CSSProperties = {
-    position: 'fixed',
-    top: `${rect.bottom + 8}px`,
-    left: `${rect.left}px`,
-    zIndex: 1000,
+    return (
+      <>
+        <button
+          className="back-button"
+          onClick={() => setSelectedAction('')}
+          title="Back to action selection"
+        >
+          ← Back
+        </button>
+        {selectedAction === 'button' && <ButtonActionForm {...formProps} />}
+        {selectedAction === 'highlight' && <HighlightActionForm {...formProps} />}
+        {selectedAction === 'formfill' && <FormFillActionForm {...formProps} />}
+        {selectedAction === 'navigate' && <NavigateActionForm {...formProps} />}
+        {selectedAction === 'hover' && <HoverActionForm {...formProps} />}
+        {selectedAction === 'multistep' && <MultistepActionForm {...formProps} />}
+      </>
+    )
   }
 
   return (
-    <>
-      <div className="popover-backdrop" />
-      <div ref={popoverRef} className="interactive-settings-popover" style={style}>
-        {selectedAction && (
-          <button
-            className="back-button"
-            onClick={() => setSelectedAction('')}
-            title="Back to action selection"
-          >
-            ← Back
-          </button>
-        )}
-        {renderForm()}
-      </div>
-    </>
+    <Popover isOpen={isOpen} onClose={onClose} anchorEl={anchorEl}>
+      {renderContent()}
+    </Popover>
   )
 }
 
 export default InteractiveSettingsPopover
+
 

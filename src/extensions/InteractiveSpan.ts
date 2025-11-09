@@ -1,4 +1,12 @@
 import { Node, mergeAttributes } from '@tiptap/core'
+import {
+  createClassAttribute,
+  createIdAttribute,
+  createTargetActionAttribute,
+  createRefTargetAttribute,
+  createRequirementsAttribute,
+} from './shared/attributes'
+import { createSpanNodeView } from './shared/nodeViewFactory'
 
 export interface InteractiveSpanOptions {
   HTMLAttributes: Record<string, any>
@@ -31,53 +39,11 @@ export const InteractiveSpan = Node.create<InteractiveSpanOptions>({
 
   addAttributes() {
     return {
-      class: {
-        default: 'interactive',
-        parseHTML: element => element.getAttribute('class') || 'interactive',
-        renderHTML: attributes => {
-          return { class: attributes.class || 'interactive' }
-        },
-      },
-      id: {
-        default: null,
-        parseHTML: element => element.getAttribute('id'),
-        renderHTML: attributes => {
-          if (!attributes.id) {
-            return {}
-          }
-          return { id: attributes.id }
-        },
-      },
-      'data-targetaction': {
-        default: null,
-        parseHTML: element => element.getAttribute('data-targetaction'),
-        renderHTML: attributes => {
-          if (!attributes['data-targetaction']) {
-            return {}
-          }
-          return { 'data-targetaction': attributes['data-targetaction'] }
-        },
-      },
-      'data-reftarget': {
-        default: null,
-        parseHTML: element => element.getAttribute('data-reftarget'),
-        renderHTML: attributes => {
-          if (!attributes['data-reftarget']) {
-            return {}
-          }
-          return { 'data-reftarget': attributes['data-reftarget'] }
-        },
-      },
-      'data-requirements': {
-        default: null,
-        parseHTML: element => element.getAttribute('data-requirements'),
-        renderHTML: attributes => {
-          if (!attributes['data-requirements']) {
-            return {}
-          }
-          return { 'data-requirements': attributes['data-requirements'] }
-        },
-      },
+      class: createClassAttribute('interactive'),
+      id: createIdAttribute(),
+      'data-targetaction': createTargetActionAttribute(),
+      'data-reftarget': createRefTargetAttribute(),
+      'data-requirements': createRequirementsAttribute(),
     }
   },
 
@@ -104,29 +70,7 @@ export const InteractiveSpan = Node.create<InteractiveSpanOptions>({
 
   addNodeView() {
     return ({ HTMLAttributes }) => {
-      const span = document.createElement('span')
-      
-      // Apply all HTML attributes
-      Object.entries(HTMLAttributes).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          span.setAttribute(key, String(value))
-        }
-      })
-
-      // Create and append lightning bolt
-      const lightning = document.createElement('span')
-      lightning.className = 'interactive-lightning'
-      lightning.textContent = '⚡'
-      span.appendChild(lightning)
-
-      // Create content wrapper
-      const contentDOM = document.createElement('span')
-      span.appendChild(contentDOM)
-
-      return {
-        dom: span,
-        contentDOM,
-      }
+      return createSpanNodeView(HTMLAttributes, true)
     }
   },
 

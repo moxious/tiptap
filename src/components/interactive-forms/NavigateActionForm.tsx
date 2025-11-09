@@ -1,65 +1,38 @@
-import { useState } from 'react'
 import { type InteractiveFormProps } from './types'
-import './InteractiveForm.css'
+import BaseInteractiveForm, { type BaseInteractiveFormConfig } from './BaseInteractiveForm'
 
-const NavigateActionForm = ({ editor, onApply, onCancel, initialValues }: InteractiveFormProps) => {
-  const [path, setPath] = useState(initialValues?.['data-reftarget'] || '')
-  const [requirements, setRequirements] = useState(initialValues?.['data-requirements'] || '')
+const config: BaseInteractiveFormConfig = {
+  title: 'Navigate Action',
+  description: 'Navigate to a specific page',
+  actionType: 'navigate',
+  fields: [
+    {
+      id: 'data-reftarget',
+      label: 'Page Path:',
+      type: 'text',
+      placeholder: 'e.g., /dashboards, /datasources',
+      hint: 'The URL path to navigate to',
+      required: true,
+      autoFocus: true,
+    },
+    {
+      id: 'data-requirements',
+      label: 'Requirements:',
+      type: 'text',
+      placeholder: 'Auto: on-page:/path',
+      hint: 'Leave blank to auto-generate on-page requirement',
+    },
+  ],
+  buildAttributes: (values) => ({
+    'data-targetaction': 'navigate',
+    'data-reftarget': values['data-reftarget'],
+    'data-requirements': values['data-requirements'] || `on-page:${values['data-reftarget']}`,
+    class: 'interactive',
+  }),
+}
 
-  const handleApply = () => {
-    onApply({
-      'data-targetaction': 'navigate',
-      'data-reftarget': path,
-      'data-requirements': requirements || `on-page:${path}`,
-      class: 'interactive',
-    })
-  }
-
-  return (
-    <div className="interactive-form">
-      <h4>Navigate Action</h4>
-      <p className="form-description">Navigate to a specific page</p>
-      
-      <div className="form-field">
-        <label htmlFor="path">Page Path:</label>
-        <input
-          id="path"
-          type="text"
-          value={path}
-          onChange={(e) => setPath(e.target.value)}
-          placeholder="e.g., /dashboards, /datasources"
-          autoFocus
-        />
-        <span className="field-hint">The URL path to navigate to</span>
-      </div>
-
-      <div className="form-field">
-        <label htmlFor="requirements">Requirements:</label>
-        <input
-          id="requirements"
-          type="text"
-          value={requirements}
-          onChange={(e) => setRequirements(e.target.value)}
-          placeholder={`Auto: on-page:${path || '/path'}`}
-        />
-        <span className="field-hint">Leave blank to auto-generate on-page requirement</span>
-      </div>
-
-      <div className="form-actions">
-        <button type="button" onClick={onCancel} className="btn-cancel">
-          Cancel
-        </button>
-        <button 
-          type="button" 
-          onClick={handleApply} 
-          className="btn-apply"
-          disabled={!path}
-        >
-          Apply
-        </button>
-      </div>
-    </div>
-  )
+const NavigateActionForm = (props: InteractiveFormProps) => {
+  return <BaseInteractiveForm config={config} {...props} />
 }
 
 export default NavigateActionForm

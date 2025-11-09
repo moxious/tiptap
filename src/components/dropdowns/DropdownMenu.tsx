@@ -1,4 +1,6 @@
-import { useState, useRef, useEffect, ReactNode } from 'react'
+import { useState, useRef, ReactNode } from 'react'
+import { useClickOutside } from '../../hooks/useClickOutside'
+import { useEscapeKey } from '../../hooks/useKeyboardShortcut'
 import './DropdownMenu.css'
 
 interface DropdownMenuProps {
@@ -12,33 +14,19 @@ const DropdownMenu = ({ trigger, children, align = 'left' }: DropdownMenuProps) 
   const dropdownRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        triggerRef.current &&
-        !triggerRef.current.contains(event.target as Node)
-      ) {
+  // Handle click outside both dropdown and trigger
+  useClickOutside(
+    dropdownRef,
+    (event: MouseEvent) => {
+      if (triggerRef.current && !triggerRef.current.contains(event.target as Node)) {
         setIsOpen(false)
       }
-    }
+    },
+    isOpen
+  )
 
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsOpen(false)
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('keydown', handleEscape)
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside)
-        document.removeEventListener('keydown', handleEscape)
-      }
-    }
-  }, [isOpen])
+  // Handle escape key
+  useEscapeKey(() => setIsOpen(false), isOpen)
 
   const handleTriggerClick = () => {
     setIsOpen(!isOpen)

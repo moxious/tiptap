@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Editor } from '@tiptap/react'
+import { type PartialEditState } from '../types'
 import HeadingDropdown from './dropdowns/HeadingDropdown'
 import FormatDropdown from './dropdowns/FormatDropdown'
 import ListDropdown from './dropdowns/ListDropdown'
@@ -9,11 +10,7 @@ import './Toolbar.css'
 
 interface ToolbarProps {
   editor: Editor | null
-  editState?: {
-    type: 'listItem' | 'sequence' | 'span' | 'comment' | null
-    attrs: Record<string, any>
-    pos: number
-  } | null
+  editState?: PartialEditState
   onCloseEdit?: () => void
 }
 
