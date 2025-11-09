@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import TiptapEditor from './components/TiptapEditor'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
   const [htmlContent, setHtmlContent] = useState('')
@@ -9,7 +10,9 @@ function App() {
     <div className="app-container">
       <div className="editor-column">
         <h1>Interactive Tutorial Editor</h1>
-        <TiptapEditor onUpdate={setHtmlContent} />
+        <ErrorBoundary>
+          <TiptapEditor onUpdate={setHtmlContent} />
+        </ErrorBoundary>
       </div>
       <div className="preview-column">
         <div className="preview-header">

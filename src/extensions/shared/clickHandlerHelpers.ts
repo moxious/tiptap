@@ -6,6 +6,7 @@
 import type { EditorView } from '@tiptap/pm/view'
 import type { InteractiveElementType } from '../../types'
 import { CSS_CLASSES, ACTION_TYPES, NODE_TYPES } from '../../constants'
+import { error as logError } from '../../utils/logger'
 
 /**
  * Result of element type determination
@@ -98,11 +99,8 @@ export function handleListItemClick(
   pos: number,
   callback: (attrs: Record<string, string>, pos: number) => void
 ): boolean {
-  console.log('🔧 [handleListItemClick] Called with pos:', pos)
   const attrs = extractElementAttributes(element)
-  console.log('🔧 [handleListItemClick] Extracted attributes:', attrs)
   callback(attrs, pos)
-  console.log('✅ [handleListItemClick] Callback executed successfully')
   return true
 }
 
@@ -114,11 +112,8 @@ export function handleSequenceSectionClick(
   pos: number,
   callback: (attrs: Record<string, string>, pos: number) => void
 ): boolean {
-  console.log('🔧 [handleSequenceSectionClick] Called with pos:', pos)
   const attrs = extractElementAttributes(element)
-  console.log('🔧 [handleSequenceSectionClick] Extracted attributes:', attrs)
   callback(attrs, pos)
-  console.log('✅ [handleSequenceSectionClick] Callback executed successfully')
   return true
 }
 
@@ -130,16 +125,12 @@ export function handleInteractiveSpanClick(
   pos: number,
   callback: (attrs: Record<string, string>, pos: number) => void
 ): boolean {
-  console.log('🔧 [handleInteractiveSpanClick] Called with pos:', pos)
   const nodeInfo = findNodeAtPosition(view, pos, NODE_TYPES.INTERACTIVE_SPAN)
   if (nodeInfo) {
-    console.log('🔧 [handleInteractiveSpanClick] Found node at position:', nodeInfo.pos)
-    console.log('🔧 [handleInteractiveSpanClick] Node attributes:', nodeInfo.node.attrs)
     callback(nodeInfo.node.attrs, nodeInfo.pos)
-    console.log('✅ [handleInteractiveSpanClick] Callback executed successfully')
     return true
   }
-  console.error('❌ [handleInteractiveSpanClick] Could not find node at position')
+  logError('[handleInteractiveSpanClick] Could not find node at position:', pos)
   return false
 }
 
@@ -151,16 +142,12 @@ export function handleInteractiveCommentClick(
   pos: number,
   callback: (attrs: Record<string, string>, pos: number) => void
 ): boolean {
-  console.log('🔧 [handleInteractiveCommentClick] Called with pos:', pos)
   const nodeInfo = findNodeAtPosition(view, pos, NODE_TYPES.INTERACTIVE_COMMENT)
   if (nodeInfo) {
-    console.log('🔧 [handleInteractiveCommentClick] Found node at position:', nodeInfo.pos)
-    console.log('🔧 [handleInteractiveCommentClick] Node attributes:', nodeInfo.node.attrs)
     callback(nodeInfo.node.attrs, nodeInfo.pos)
-    console.log('✅ [handleInteractiveCommentClick] Callback executed successfully')
     return true
   }
-  console.error('❌ [handleInteractiveCommentClick] Could not find node at position')
+  logError('[handleInteractiveCommentClick] Could not find node at position:', pos)
   return false
 }
 

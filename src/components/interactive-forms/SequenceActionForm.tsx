@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { validateSectionId, validateRequirement } from '../../services/validation'
 import './InteractiveForm.css'
 
 interface SequenceActionFormProps {
@@ -11,8 +12,51 @@ interface SequenceActionFormProps {
 const SequenceActionForm = ({ onApply, onCancel, initialSectionId = '', initialRequirements = '' }: SequenceActionFormProps) => {
   const [sectionId, setSectionId] = useState(initialSectionId)
   const [requirements, setRequirements] = useState(initialRequirements)
+  const [validationErrors, setValidationErrors] = useState<{ sectionId?: string; requirements?: string }>({})
+
+  const handleSectionIdChange = (value: string) => {
+    setSectionId(value)
+    // Clear validation error when user starts typing
+    if (validationErrors.sectionId) {
+      setValidationErrors(prev => ({ ...prev, sectionId: undefined }))
+    }
+  }
+
+  const handleRequirementsChange = (value: string) => {
+    setRequirements(value)
+    // Clear validation error when user starts typing
+    if (validationErrors.requirements) {
+      setValidationErrors(prev => ({ ...prev, requirements: undefined }))
+    }
+  }
 
   const handleApply = () => {
+    // Validate inputs before applying
+    const errors: { sectionId?: string; requirements?: string } = {}
+
+    // Validate section ID (required)
+    if (!sectionId.trim()) {
+      errors.sectionId = 'Section ID is required'
+    } else {
+      const idValidation = validateSectionId(sectionId)
+      if (!idValidation.valid) {
+        errors.sectionId = idValidation.error
+      }
+    }
+
+    // Validate requirements (optional)
+    if (requirements.trim()) {
+      const reqValidation = validateRequirement(requirements)
+      if (!reqValidation.valid) {
+        errors.requirements = reqValidation.error
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors)
+      return // Don't apply if there are validation errors
+    }
+
     onApply(sectionId, requirements)
   }
 
@@ -27,11 +71,24 @@ const SequenceActionForm = ({ onApply, onCancel, initialSectionId = '', initialR
           id="section-id"
           type="text"
           value={sectionId}
-          onChange={(e) => setSectionId(e.target.value)}
+          onChange={(e) => handleSectionIdChange(e.target.value)}
           placeholder="e.g., setup, configure, deploy"
           autoFocus
+          className={validationErrors.sectionId ? 'error' : ''}
+          aria-required="true"
+          aria-invalid={validationErrors.sectionId ? 'true' : 'false'}
+          aria-describedby={validationErrors.sectionId ? 'section-id-error' : 'section-id-hint'}
         />
-        <span className="field-hint">Unique identifier for this section (used for dependencies)</span>
+        {validationErrors.sectionId && (
+          <span id="section-id-error" className="field-error" role="alert">
+            {validationErrors.sectionId}
+          </span>
+        )}
+        {!validationErrors.sectionId && (
+          <span id="section-id-hint" className="field-hint">
+            Unique identifier for this section (used for dependencies)
+          </span>
+        )}
       </div>
 
       <div className="form-field">
@@ -40,10 +97,22 @@ const SequenceActionForm = ({ onApply, onCancel, initialSectionId = '', initialR
           id="requirements"
           type="text"
           value={requirements}
-          onChange={(e) => setRequirements(e.target.value)}
+          onChange={(e) => handleRequirementsChange(e.target.value)}
           placeholder="e.g., section-completed:previous-section"
+          className={validationErrors.requirements ? 'error' : ''}
+          aria-invalid={validationErrors.requirements ? 'true' : 'false'}
+          aria-describedby={validationErrors.requirements ? 'requirements-error' : 'requirements-hint'}
         />
-        <span className="field-hint">Optional: dependencies on other sections</span>
+        {validationErrors.requirements && (
+          <span id="requirements-error" className="field-error" role="alert">
+            {validationErrors.requirements}
+          </span>
+        )}
+        {!validationErrors.requirements && (
+          <span id="requirements-hint" className="field-hint">
+            Optional: dependencies on other sections
+          </span>
+        )}
       </div>
 
       <div className="info-box">

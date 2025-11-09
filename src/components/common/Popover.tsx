@@ -1,4 +1,4 @@
-import { ReactNode, RefObject, useRef } from 'react'
+import { ReactNode, RefObject, useRef, useEffect } from 'react'
 import { useClickOutside } from '../../hooks/useClickOutside'
 import { useEscapeKey } from '../../hooks/useKeyboardShortcut'
 
@@ -9,6 +9,8 @@ export interface PopoverProps {
   children: ReactNode
   className?: string
   showBackdrop?: boolean
+  ariaLabel?: string
+  ariaLabelledBy?: string
 }
 
 /**
@@ -21,9 +23,61 @@ const Popover = ({
   anchorEl, 
   children, 
   className = '',
-  showBackdrop = true 
+  showBackdrop = true,
+  ariaLabel,
+  ariaLabelledBy
 }: PopoverProps) => {
   const popoverRef = useRef<HTMLDivElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
+  // Focus trap: Keep focus within popover when open
+  useEffect(() => {
+    if (!isOpen || !popoverRef.current) return
+
+    // Store the element that had focus before opening
+    previousFocusRef.current = document.activeElement as HTMLElement
+
+    // Get all focusable elements within the popover
+    const focusableElements = popoverRef.current.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const firstElement = focusableElements[0]
+    const lastElement = focusableElements[focusableElements.length - 1]
+
+    // Focus first element when popover opens
+    if (firstElement) {
+      setTimeout(() => firstElement.focus(), 0)
+    }
+
+    // Trap focus within popover
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return
+
+      if (e.shiftKey) {
+        // Shift + Tab: If focused on first element, move to last
+        if (document.activeElement === firstElement) {
+          e.preventDefault()
+          lastElement?.focus()
+        }
+      } else {
+        // Tab: If focused on last element, move to first
+        if (document.activeElement === lastElement) {
+          e.preventDefault()
+          firstElement?.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleTabKey)
+
+    // Restore focus when closing
+    return () => {
+      document.removeEventListener('keydown', handleTabKey)
+      if (previousFocusRef.current) {
+        previousFocusRef.current.focus()
+      }
+    }
+  }, [isOpen])
 
   // Handle click outside
   useClickOutside(
@@ -41,13 +95,6 @@ const Popover = ({
   // Handle escape key
   useEscapeKey(onClose, isOpen)
 
-  // Debug logging
-  console.log('🪟 [Popover] Render check:', {
-    isOpen,
-    anchorEl,
-    willRender: isOpen && !!anchorEl,
-  })
-
   if (!isOpen || !anchorEl) {
     return null
   }
@@ -58,12 +105,6 @@ const Popover = ({
   // If anchor is a large container (like editor-wrapper), use viewport-centered positioning
   // instead of positioning at the bottom of the container (which would be off-screen)
   const isLargeContainer = anchorEl.classList.contains('editor-wrapper')
-  
-  console.log('🪟 [Popover] Positioning:', {
-    anchorClasses: anchorEl.className,
-    isLargeContainer,
-    rect: { bottom: rect.bottom, left: rect.left, height: rect.height },
-  })
   
   const style: React.CSSProperties = isLargeContainer
     ? {
@@ -87,6 +128,10 @@ const Popover = ({
         ref={popoverRef} 
         className={`interactive-settings-popover ${className}`} 
         style={style}
+        role="dialog"
+        aria-modal="true"
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
       >
         {children}
       </div>

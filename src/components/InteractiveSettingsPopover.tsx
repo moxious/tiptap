@@ -91,7 +91,12 @@ const InteractiveSettingsPopover = ({
   }
 
   return (
-    <Popover isOpen={isOpen} onClose={onClose} anchorEl={anchorEl}>
+    <Popover 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      anchorEl={anchorEl}
+      ariaLabel="Interactive element settings"
+    >
       {renderContent()}
     </Popover>
   )

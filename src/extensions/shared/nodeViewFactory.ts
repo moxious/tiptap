@@ -26,11 +26,27 @@ export interface NodeViewConfig {
 
 /**
  * Creates a lightning bolt element for interactive nodes
+ * Now keyboard accessible with proper ARIA attributes
  */
 export function createLightningBolt(): HTMLSpanElement {
   const lightning = document.createElement('span')
   lightning.className = 'interactive-lightning'
   lightning.textContent = '⚡'
+  
+  // Make keyboard accessible
+  lightning.setAttribute('role', 'button')
+  lightning.setAttribute('tabindex', '0')
+  lightning.setAttribute('aria-label', 'Edit interactive settings')
+  
+  // Add keyboard event handler for Enter and Space keys
+  lightning.addEventListener('keydown', (event: KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      // Trigger a click event which will be handled by the InteractiveClickHandler
+      lightning.click()
+    }
+  })
+  
   return lightning
 }
 

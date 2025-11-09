@@ -45,11 +45,28 @@
   box-shadow: 0 0 0 1px #1a73e8;
 }
 
+.form-field input[type="text"].error {
+  border-color: #d93025;
+}
+
+.form-field input[type="text"].error:focus {
+  border-color: #d93025;
+  box-shadow: 0 0 0 1px #d93025;
+}
+
 .field-hint {
   display: block;
   margin-top: 4px;
   font-size: 12px;
   color: #5f6368;
+}
+
+.field-error {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #d93025;
+  font-weight: 500;
 }
 
 .common-options {

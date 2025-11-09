@@ -16,9 +16,7 @@ export function useEditState() {
     attrs: Record<string, string>,
     pos: number
   ) => {
-    console.log('🎨 [useEditState] startEditing called:', { type, attrs, pos })
     setEditState({ type, attrs, pos })
-    console.log('✅ [useEditState] Edit state updated')
   }, [])
 
   /**

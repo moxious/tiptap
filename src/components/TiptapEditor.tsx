@@ -79,7 +79,7 @@ const TiptapEditor = ({ onUpdate }: TiptapEditorProps) => {
     `,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML()
-      onUpdate(formatHTML(html))
+      formatHTML(html).then(formatted => onUpdate(formatted))
     },
     editorProps: {
       attributes: {
@@ -92,7 +92,7 @@ const TiptapEditor = ({ onUpdate }: TiptapEditorProps) => {
   useEffect(() => {
     if (editor) {
       const html = editor.getHTML()
-      onUpdate(formatHTML(html))
+      formatHTML(html).then(formatted => onUpdate(formatted))
     }
   }, [editor, onUpdate])
 

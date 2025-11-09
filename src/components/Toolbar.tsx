@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Editor } from '@tiptap/react'
 import { type EditStateOrNull } from '../types'
 import HeadingDropdown from './dropdowns/HeadingDropdown'
@@ -41,18 +41,6 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
     ? document.querySelector('.editor-wrapper') as HTMLElement
     : toolbarPopover?.type === 'sequence' ? toolbarPopover.anchor : null
 
-  // Debug logging for popover states when they change
-  useEffect(() => {
-    console.log('🎛️  [Toolbar] Popover states changed:', {
-      editState,
-      toolbarPopover,
-      interactivePopoverOpen,
-      sequencePopoverOpen,
-      interactiveAnchor,
-      sequenceAnchor,
-    })
-  }, [editState, toolbarPopover, interactivePopoverOpen, sequencePopoverOpen, interactiveAnchor, sequenceAnchor])
-
   if (!editor) {
     return null
   }
@@ -90,6 +78,7 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
             className={`toolbar-btn ${editor.isActive('bold') ? 'active' : ''}`}
             onClick={() => editor.chain().focus().toggleBold().run()}
             title="Bold (Ctrl+B)"
+            aria-label="Bold (Ctrl+B)"
           >
             <strong>B</strong>
           </button>
@@ -97,6 +86,7 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
             className={`toolbar-btn ${editor.isActive('italic') ? 'active' : ''}`}
             onClick={() => editor.chain().focus().toggleItalic().run()}
             title="Italic (Ctrl+I)"
+            aria-label="Italic (Ctrl+I)"
           >
             <em>I</em>
           </button>
@@ -115,6 +105,7 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
             className="toolbar-btn interactive-btn"
             onClick={handleInteractiveClick}
             title="Add Interactive Action"
+            aria-label="Add Interactive Action"
           >
             ⚡
           </button>
@@ -122,6 +113,7 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
             className="toolbar-btn"
             onClick={handleSequenceClick}
             title="Add Sequence Section"
+            aria-label="Add Sequence Section"
           >
             📑
           </button>
@@ -129,6 +121,7 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
             className={`toolbar-btn ${editor.isActive('interactiveComment') ? 'active' : ''}`}
             onClick={() => editor.chain().focus().toggleInteractiveComment().run()}
             title="Interactive Comment"
+            aria-label="Interactive Comment"
           >
             💬
           </button>
@@ -142,6 +135,7 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
             onClick={() => editor.chain().focus().undo().run()}
             disabled={!editor.can().undo()}
             title="Undo (Ctrl+Z)"
+            aria-label="Undo (Ctrl+Z)"
           >
             ↶
           </button>
@@ -150,6 +144,7 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
             onClick={() => editor.chain().focus().redo().run()}
             disabled={!editor.can().redo()}
             title="Redo (Ctrl+Shift+Z)"
+            aria-label="Redo (Ctrl+Shift+Z)"
           >
             ↷
           </button>

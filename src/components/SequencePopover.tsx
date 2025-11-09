@@ -33,7 +33,12 @@ const SequencePopover = ({
   }
 
   return (
-    <Popover isOpen={isOpen} onClose={onClose} anchorEl={anchorEl}>
+    <Popover 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      anchorEl={anchorEl}
+      ariaLabel="Sequence section settings"
+    >
       <SequenceActionForm
         onApply={handleApply}
         onCancel={onClose}
