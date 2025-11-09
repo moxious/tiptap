@@ -1,5 +1,6 @@
 import { Editor } from '@tiptap/react'
-import { type PartialEditState } from '../types'
+import { type EditState } from '../types'
+import { insertSequenceSection, updateSequenceSection } from '../services/editorOperations'
 import SequenceActionForm from './interactive-forms/SequenceActionForm'
 import Popover from './common/Popover'
 import './InteractiveSettingsPopover.css'
@@ -9,7 +10,7 @@ interface SequencePopoverProps {
   isOpen: boolean
   onClose: () => void
   anchorEl: HTMLElement | null
-  editState?: PartialEditState
+  editState?: EditState | null
 }
 
 const SequencePopover = ({
@@ -21,24 +22,11 @@ const SequencePopover = ({
 }: SequencePopoverProps) => {
 
   const handleApply = (sectionId: string, requirements: string) => {
-    // Build the attributes object
-    const attrs: Record<string, string> = {
-      id: sectionId,
-      class: 'interactive',
-      'data-targetaction': 'sequence',
-      'data-reftarget': `span#${sectionId}`,
-    }
-    
-    if (requirements) {
-      attrs['data-requirements'] = requirements
-    }
-
-    // If editing an existing element, update it
+    // If editing an existing element, update it; otherwise insert new
     if (editState) {
-      editor.chain().focus().updateAttributes('sequenceSection', attrs).run()
+      updateSequenceSection(editor, sectionId, requirements)
     } else {
-      // Otherwise, insert a new sequence section
-      editor.chain().focus().insertSequenceSection(attrs).run()
+      insertSequenceSection(editor, sectionId, requirements)
     }
     
     onClose()

@@ -21,6 +21,46 @@ declare module '@tiptap/core' {
   }
 }
 
+/**
+ * SequenceSection Extension
+ * 
+ * A special interactive element that represents a section containing multiple steps with a checkpoint.
+ * 
+ * ## Why a separate extension from InteractiveSpan?
+ * 
+ * While both render as <span> elements in HTML, SequenceSection has fundamentally different behavior:
+ * 
+ * 1. **Content Model**: 
+ *    - SequenceSection: block-level content ('block+') - contains headings, lists, paragraphs
+ *    - InteractiveSpan: inline content ('inline*') - contains text and inline marks
+ * 
+ * 2. **Purpose**:
+ *    - SequenceSection: Wraps entire tutorial sections with multiple steps (container)
+ *    - InteractiveSpan: Marks specific inline elements for interaction (marker)
+ * 
+ * 3. **Action Type**:
+ *    - SequenceSection: Always 'sequence' action (data-targetaction="sequence")
+ *    - InteractiveSpan: Variable action types (button, highlight, etc.)
+ * 
+ * 4. **Parsing Priority**:
+ *    - SequenceSection: Higher priority (100) to match sequence spans first
+ *    - InteractiveSpan: Default priority, matches other interactive spans
+ * 
+ * ## HTML Output
+ * 
+ * Despite being a block-level node in the editor, SequenceSection renders as a <span> 
+ * for compatibility with the Grafana Interactive Tutorials system, which expects:
+ * 
+ * ```html
+ * <span id="section-id" class="interactive" data-targetaction="sequence" data-reftarget="span#section-id">
+ *   <h3>Section Title</h3>
+ *   <ul>
+ *     <li>Step 1</li>
+ *     <li>Step 2</li>
+ *   </ul>
+ * </span>
+ * ```
+ */
 export const SequenceSection = Node.create<SequenceSectionOptions>({
   name: 'sequenceSection',
   

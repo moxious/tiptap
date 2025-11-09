@@ -7,6 +7,11 @@ import {
   createRequirementsAttribute,
 } from './shared/attributes'
 import { createSpanNodeView } from './shared/nodeViewFactory'
+import {
+  createToggleInlineNodeCommand,
+  createUnsetInlineNodeCommand,
+  createSetInlineNodeCommand,
+} from './shared/commandHelpers'
 
 export interface InteractiveSpanOptions {
   HTMLAttributes: Record<string, any>
@@ -22,6 +27,40 @@ declare module '@tiptap/core' {
   }
 }
 
+/**
+ * InteractiveSpan Extension
+ * 
+ * An inline node that wraps text or other inline content to mark it as interactive.
+ * 
+ * ## Difference from SequenceSection
+ * 
+ * While both render as <span> elements, InteractiveSpan is fundamentally different:
+ * 
+ * 1. **Content Model**:
+ *    - InteractiveSpan: inline ('inline*') - can contain text, bold, italic, etc.
+ *    - SequenceSection: block ('block+') - contains headings, lists, paragraphs
+ * 
+ * 2. **Usage**:
+ *    - InteractiveSpan: Marks specific text/elements within a paragraph for interaction
+ *    - SequenceSection: Wraps entire tutorial sections with multiple block elements
+ * 
+ * 3. **Action Types**:
+ *    - InteractiveSpan: Variable (button, highlight, formfill, navigate, hover, multistep)
+ *    - SequenceSection: Always 'sequence'
+ * 
+ * ## HTML Output
+ * 
+ * ```html
+ * <span class="interactive" data-targetaction="button" data-reftarget="Save">
+ *   Click the Save button
+ * </span>
+ * ```
+ * 
+ * ## Parsing
+ * 
+ * Parses <span class="interactive"> elements from HTML, but excludes spans with
+ * data-targetaction="sequence" (which are handled by SequenceSection).
+ */
 export const InteractiveSpan = Node.create<InteractiveSpanOptions>({
   name: 'interactiveSpan',
 
@@ -76,88 +115,15 @@ export const InteractiveSpan = Node.create<InteractiveSpanOptions>({
 
   addCommands() {
     return {
-      setInteractiveSpan:
-        (attributes) =>
-        ({ commands, state }) => {
-          const { from, to } = state.selection
-          // If there's a selection, wrap it in an interactive span
-          if (from !== to) {
-            return commands.insertContentAt(
-              { from, to },
-              {
-                type: this.name,
-                attrs: attributes,
-                content: state.doc.slice(from, to).content.toJSON(),
-              }
-            )
-          }
-          // Otherwise insert an empty interactive span
-          return commands.insertContent({
-            type: this.name,
-            attrs: attributes,
-            content: [{ type: 'text', text: 'Interactive text' }],
-          })
-        },
-      toggleInteractiveSpan:
-        () =>
-        ({ commands, state, chain }) => {
-          const { from, to, $from } = state.selection
-          
-          // Check if we're inside an interactive span
-          for (let depth = $from.depth; depth > 0; depth--) {
-            const node = $from.node(depth)
-            if (node.type.name === this.name) {
-              // We're inside an interactive span, so unwrap it
-              const pos = $from.before(depth)
-              const nodeSize = node.nodeSize
-              
-              // Extract the content
-              const content = node.content
-              
-              // Delete the node and insert its content
-              return chain()
-                .deleteRange({ from: pos, to: pos + nodeSize })
-                .insertContentAt(pos, content.toJSON())
-                .run()
-            }
-          }
-          
-          // Not inside an interactive span, so wrap the selection
-          if (from !== to) {
-            return commands.insertContentAt(
-              { from, to },
-              {
-                type: this.name,
-                attrs: { class: 'interactive' },
-                content: state.doc.slice(from, to).content.toJSON(),
-              }
-            )
-          }
-          
-          return false
-        },
-      unsetInteractiveSpan:
-        () =>
-        ({ state, chain }) => {
-          const { $from } = state.selection
-          
-          // Find if we're inside an interactive span
-          for (let depth = $from.depth; depth > 0; depth--) {
-            const node = $from.node(depth)
-            if (node.type.name === this.name) {
-              const pos = $from.before(depth)
-              const nodeSize = node.nodeSize
-              const content = node.content
-              
-              return chain()
-                .deleteRange({ from: pos, to: pos + nodeSize })
-                .insertContentAt(pos, content.toJSON())
-                .run()
-            }
-          }
-          
-          return false
-        },
+      setInteractiveSpan: createSetInlineNodeCommand(
+        this.name,
+        [{ type: 'text', text: 'Interactive text' }]
+      ),
+      toggleInteractiveSpan: createToggleInlineNodeCommand(
+        this.name,
+        { class: 'interactive' }
+      ),
+      unsetInteractiveSpan: createUnsetInlineNodeCommand(this.name),
     }
   },
 })

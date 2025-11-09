@@ -1,38 +1,13 @@
 import { type InteractiveFormProps } from './types'
-import BaseInteractiveForm, { type BaseInteractiveFormConfig } from './BaseInteractiveForm'
-
-const config: BaseInteractiveFormConfig = {
-  title: 'Form Fill Action',
-  description: 'Fill a form input field',
-  actionType: 'formfill',
-  fields: [
-    {
-      id: 'data-reftarget',
-      label: 'Input Selector:',
-      type: 'text',
-      placeholder: 'e.g., input[name="title"], #query',
-      hint: 'CSS selector for the input field',
-      required: true,
-      autoFocus: true,
-    },
-    {
-      id: 'data-requirements',
-      label: 'Requirements:',
-      type: 'text',
-      placeholder: 'e.g., exists-reftarget',
-      defaultValue: 'exists-reftarget',
-      showCommonOptions: true,
-    },
-  ],
-  buildAttributes: (values) => ({
-    'data-targetaction': 'formfill',
-    'data-reftarget': values['data-reftarget'],
-    'data-requirements': values['data-requirements'],
-    class: 'interactive',
-  }),
-}
+import BaseInteractiveForm from './BaseInteractiveForm'
+import { getActionConfig } from '../../config/actionTypes'
+import { ACTION_TYPES } from '../../constants'
 
 const FormFillActionForm = (props: InteractiveFormProps) => {
+  const config = getActionConfig(ACTION_TYPES.FORM_FILL)
+  if (!config) {
+    throw new Error(`Action config not found for ${ACTION_TYPES.FORM_FILL}`)
+  }
   return <BaseInteractiveForm config={config} {...props} />
 }
 

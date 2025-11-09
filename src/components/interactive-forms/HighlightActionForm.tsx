@@ -1,45 +1,13 @@
 import { type InteractiveFormProps } from './types'
-import BaseInteractiveForm, { type BaseInteractiveFormConfig } from './BaseInteractiveForm'
-
-const config: BaseInteractiveFormConfig = {
-  title: 'Highlight Element Action',
-  description: 'Highlight a specific UI element',
-  actionType: 'highlight',
-  fields: [
-    {
-      id: 'data-reftarget',
-      label: 'CSS Selector:',
-      type: 'text',
-      placeholder: 'e.g., [data-testid="panel"], .my-class',
-      hint: 'CSS selector for the element to highlight',
-      required: true,
-      autoFocus: true,
-    },
-    {
-      id: 'data-requirements',
-      label: 'Requirements:',
-      type: 'text',
-      placeholder: 'e.g., exists-reftarget',
-      defaultValue: 'exists-reftarget',
-      showCommonOptions: true,
-    },
-    {
-      id: 'data-doit',
-      label: 'Show-only (educational, no interaction required)',
-      type: 'checkbox',
-      defaultValue: false,
-    },
-  ],
-  buildAttributes: (values) => ({
-    'data-targetaction': 'highlight',
-    'data-reftarget': values['data-reftarget'],
-    'data-requirements': values['data-requirements'],
-    'data-doit': values['data-doit'] ? 'false' : null,
-    class: 'interactive',
-  }),
-}
+import BaseInteractiveForm from './BaseInteractiveForm'
+import { getActionConfig } from '../../config/actionTypes'
+import { ACTION_TYPES } from '../../constants'
 
 const HighlightActionForm = (props: InteractiveFormProps) => {
+  const config = getActionConfig(ACTION_TYPES.HIGHLIGHT)
+  if (!config) {
+    throw new Error(`Action config not found for ${ACTION_TYPES.HIGHLIGHT}`)
+  }
   return <BaseInteractiveForm config={config} {...props} />
 }
 

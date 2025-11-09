@@ -99,29 +99,3 @@ export function createDoItAttribute() {
   }
 }
 
-/**
- * Returns the complete set of interactive attributes
- */
-export function getInteractiveAttributes() {
-  return {
-    class: createClassAttribute('interactive'),
-    id: createIdAttribute(),
-    'data-targetaction': createTargetActionAttribute(),
-    'data-reftarget': createRefTargetAttribute(),
-    'data-requirements': createRequirementsAttribute(),
-    'data-doit': createDoItAttribute(),
-  }
-}
-
-/**
- * Returns a subset of interactive attributes (without id and data-doit)
- */
-export function getBasicInteractiveAttributes() {
-  return {
-    class: createClassAttribute('interactive'),
-    'data-targetaction': createTargetActionAttribute(),
-    'data-reftarget': createRefTargetAttribute(),
-    'data-requirements': createRequirementsAttribute(),
-  }
-}
-

@@ -1,0 +1,65 @@
+/**
+ * CSS Variables
+ * Centralized design tokens for consistent styling across the application
+ */
+
+:root {
+  /* Colors */
+  --color-primary: #646cff;
+  --color-primary-hover: #535bf2;
+  --color-border: #ccc;
+  --color-border-light: #ddd;
+  --color-background: #fff;
+  --color-background-hover: #f0f0f0;
+  --color-text: #213547;
+  --color-text-secondary: #666;
+  --color-danger: #ff4444;
+  --color-success: #4caf50;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  
+  /* Typography */
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  
+  /* Z-index layers */
+  --z-dropdown: 100;
+  --z-popover: 1000;
+  --z-modal: 2000;
+  --z-tooltip: 3000;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #1a1a1a;
+    --color-text: #fff;
+    --color-text-secondary: #ccc;
+    --color-border: #444;
+    --color-border-light: #333;
+    --color-background-hover: #2a2a2a;
+  }
+}
+

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Editor } from '@tiptap/react'
-import { type ActionType, type InteractiveAttributes } from './interactive-forms/types'
-import { type PartialEditState } from '../types'
+import { type InteractiveAttributesOutput } from './interactive-forms/types'
+import { type EditState } from '../types'
+import { buildInteractiveAttributes, getNodeTypeName } from '../services/attributeBuilder'
 import ButtonActionForm from './interactive-forms/ButtonActionForm'
 import HighlightActionForm from './interactive-forms/HighlightActionForm'
 import FormFillActionForm from './interactive-forms/FormFillActionForm'
@@ -17,7 +18,7 @@ interface InteractiveSettingsPopoverProps {
   isOpen: boolean
   onClose: () => void
   anchorEl: HTMLElement | null
-  editState?: PartialEditState
+  editState?: EditState | null
 }
 
 const InteractiveSettingsPopover = ({
@@ -27,52 +28,29 @@ const InteractiveSettingsPopover = ({
   anchorEl,
   editState,
 }: InteractiveSettingsPopoverProps) => {
-  const [selectedAction, setSelectedAction] = useState<ActionType | ''>('')
+  const [selectedAction, setSelectedAction] = useState<string>('')
 
   useEffect(() => {
     if (!isOpen) {
       setSelectedAction('')
     } else if (editState?.attrs) {
       // If editing, pre-select the action type
-      const actionType = editState.attrs['data-targetaction'] as ActionType
+      const actionType = editState.attrs['data-targetaction']
       if (actionType) {
         setSelectedAction(actionType)
       }
     }
   }, [isOpen, editState])
 
-  const handleApply = (attributes: InteractiveAttributes) => {
-    // Prepare all attributes
-    const elementAttributes: Record<string, any> = {
-      class: attributes.class || 'interactive',
-    }
+  const handleApply = (attributes: InteractiveAttributesOutput) => {
+    // Build attributes based on element type
+    const elementType = editState?.type || 'listItem'
+    const elementAttributes = buildInteractiveAttributes(elementType, attributes)
     
-    if (attributes['data-targetaction']) {
-      elementAttributes['data-targetaction'] = attributes['data-targetaction']
-    }
-    if (attributes['data-reftarget']) {
-      elementAttributes['data-reftarget'] = attributes['data-reftarget']
-    }
-    if (attributes['data-requirements']) {
-      elementAttributes['data-requirements'] = attributes['data-requirements']
-    }
-    if (attributes['data-doit'] === 'false') {
-      elementAttributes['data-doit'] = 'false'
-    }
-    if (attributes['id']) {
-      elementAttributes['id'] = attributes['id']
-    }
-    
-    // If editing an existing element, update it based on type
+    // If editing an existing element, update it
     if (editState) {
-      if (editState.type === 'listItem') {
-        editor.chain().focus().updateAttributes('listItem', elementAttributes).run()
-      } else if (editState.type === 'span') {
-        editor.chain().focus().updateAttributes('interactiveSpan', elementAttributes).run()
-      } else if (editState.type === 'comment') {
-        // Interactive comments don't have data attributes, just update the class if needed
-        editor.chain().focus().updateAttributes('interactiveComment', { class: elementAttributes.class }).run()
-      }
+      const nodeType = getNodeTypeName(editState.type)
+      editor.chain().focus().updateAttributes(nodeType, elementAttributes).run()
     } else {
       // Otherwise, convert current selection to interactive list item (default behavior)
       editor.chain().focus().convertToInteractiveListItem(elementAttributes).run()

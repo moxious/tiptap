@@ -5,15 +5,16 @@ export type InteractiveElementType = 'listItem' | 'sequence' | 'span' | 'comment
 
 /**
  * State representing an interactive element being edited
+ * All fields are required when state exists; use null for no edit state
  */
 export interface EditState {
-  type: InteractiveElementType | null
-  attrs: Record<string, any>
+  type: InteractiveElementType
+  attrs: Record<string, string>
   pos: number
 }
 
 /**
- * Partial edit state for components that only handle certain types
+ * Edit state that may be null when no element is being edited
  */
-export type PartialEditState = EditState | null
+export type EditStateOrNull = EditState | null
 

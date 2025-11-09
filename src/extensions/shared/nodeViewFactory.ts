@@ -1,5 +1,21 @@
 /**
- * Factory functions for creating node views with interactive elements
+ * Node View Factory
+ * 
+ * Factory functions for creating node views with interactive elements.
+ * All interactive nodes display a lightning bolt (⚡) indicator that users can click to edit attributes.
+ * 
+ * ## Usage
+ * 
+ * - `createListItemNodeView`: For interactive list items (<li>)
+ * - `createSpanNodeView`: For inline interactive spans (<span>)
+ * - `createSequenceSectionNodeView`: For block-level sequence sections (span with block content)
+ * - `createInteractiveNodeView`: Generic factory for custom node types
+ * 
+ * ## Lightning Bolt Behavior
+ * 
+ * The lightning bolt is conditionally shown based on:
+ * - For list items: Only shown if the item has class="interactive"
+ * - For spans and sequences: Always shown (configurable)
  */
 
 export interface NodeViewConfig {
@@ -88,21 +104,46 @@ export function createListItemNodeView(
 }
 
 /**
- * Creates a node view specifically for inline spans
+ * Configuration for span-based node views
+ */
+export interface SpanNodeViewConfig {
+  showLightning?: boolean
+  contentTag?: 'span' | 'div'
+  contentDisplay?: 'inline' | 'contents'
+}
+
+/**
+ * Creates a unified node view for span-based elements
+ * Consolidates createSpanNodeView and createSequenceSectionNodeView
+ * 
+ * @param attributes - HTML attributes to apply
+ * @param config - Configuration options
  */
 export function createSpanNodeView(
   attributes: Record<string, any>,
-  showLightning: boolean = true
+  config: SpanNodeViewConfig | boolean = {}
 ): { dom: HTMLElement; contentDOM: HTMLElement } {
+  // Handle legacy boolean parameter (showLightning)
+  const finalConfig: SpanNodeViewConfig = typeof config === 'boolean'
+    ? { showLightning: config, contentTag: 'span', contentDisplay: 'inline' }
+    : {
+        showLightning: config.showLightning !== false,
+        contentTag: config.contentTag || 'span',
+        contentDisplay: config.contentDisplay || 'inline',
+      }
+
   const dom = document.createElement('span')
   applyAttributes(dom, attributes)
 
-  if (showLightning) {
+  if (finalConfig.showLightning) {
     const lightning = createLightningBolt()
     dom.appendChild(lightning)
   }
 
-  const contentDOM = document.createElement('span')
+  const contentDOM = document.createElement(finalConfig.contentTag)
+  if (finalConfig.contentDisplay === 'contents') {
+    contentDOM.style.display = 'contents'
+  }
   dom.appendChild(contentDOM)
 
   return { dom, contentDOM }
@@ -110,20 +151,15 @@ export function createSpanNodeView(
 
 /**
  * Creates a node view for sequence sections (block-level spans)
+ * This is now a convenience wrapper around createSpanNodeView
  */
 export function createSequenceSectionNodeView(
   attributes: Record<string, any>
 ): { dom: HTMLElement; contentDOM: HTMLElement } {
-  const dom = document.createElement('span')
-  applyAttributes(dom, attributes)
-
-  const lightning = createLightningBolt()
-  dom.appendChild(lightning)
-
-  const contentDOM = document.createElement('div')
-  contentDOM.style.display = 'contents'
-  dom.appendChild(contentDOM)
-
-  return { dom, contentDOM }
+  return createSpanNodeView(attributes, {
+    showLightning: true,
+    contentTag: 'div',
+    contentDisplay: 'contents',
+  })
 }
 

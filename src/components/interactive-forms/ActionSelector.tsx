@@ -1,60 +1,14 @@
-import { type ActionType } from './types'
+import { ACTION_METADATA } from '../../config/actionTypes'
 import './InteractiveForm.css'
 
-interface ActionOption {
-  type: ActionType
-  icon: string
-  name: string
-  description: string
-}
-
-const ACTION_OPTIONS: ActionOption[] = [
-  {
-    type: 'button',
-    icon: '🔘',
-    name: 'Button',
-    description: 'Click a button',
-  },
-  {
-    type: 'highlight',
-    icon: '✨',
-    name: 'Highlight',
-    description: 'Highlight an element',
-  },
-  {
-    type: 'formfill',
-    icon: '📝',
-    name: 'Form Fill',
-    description: 'Fill an input field',
-  },
-  {
-    type: 'navigate',
-    icon: '🧭',
-    name: 'Navigate',
-    description: 'Go to a page',
-  },
-  {
-    type: 'hover',
-    icon: '👆',
-    name: 'Hover',
-    description: 'Reveal on hover',
-  },
-  {
-    type: 'multistep',
-    icon: '📋',
-    name: 'Multistep',
-    description: 'Multiple actions',
-  },
-]
-
 interface ActionSelectorProps {
-  onSelect: (actionType: ActionType) => void
+  onSelect: (actionType: string) => void
   onCancel: () => void
 }
 
 /**
  * Component for selecting an interactive action type
- * Extracted from InteractiveSettingsPopover for better separation of concerns
+ * Uses centralized action metadata from config/actionTypes
  */
 const ActionSelector = ({ onSelect, onCancel }: ActionSelectorProps) => {
   return (
@@ -62,7 +16,7 @@ const ActionSelector = ({ onSelect, onCancel }: ActionSelectorProps) => {
       <h4>Select Interactive Action</h4>
       <p className="selector-description">Choose the type of interaction for this element</p>
       <div className="action-grid">
-        {ACTION_OPTIONS.map(option => (
+        {ACTION_METADATA.map(option => (
           <button
             key={option.type}
             className="action-option"

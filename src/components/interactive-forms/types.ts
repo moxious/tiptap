@@ -1,43 +1,40 @@
 import { Editor } from '@tiptap/react'
 
-// Shared interface for all interactive form components
+/**
+ * Shared interface for all interactive form components
+ */
 export interface InteractiveFormProps {
   editor: Editor
-  onApply: (attributes: InteractiveAttributes) => void
+  onApply: (attributes: InteractiveAttributesOutput) => void
   onCancel: () => void
-  initialValues?: Partial<InteractiveAttributes>
+  initialValues?: Partial<InteractiveAttributesInput>
 }
 
-// All possible attributes for interactive elements
-export interface InteractiveAttributes {
+/**
+ * Interactive attributes as used in form inputs (with booleans)
+ */
+export interface InteractiveAttributesInput {
+  'data-targetaction': string
+  'data-reftarget': string
+  'data-requirements': string
+  'data-doit': boolean  // boolean in UI
+  class: string
+  id: string
+}
+
+/**
+ * Interactive attributes as output to HTML (all strings or null)
+ */
+export interface InteractiveAttributesOutput {
   'data-targetaction'?: string
   'data-reftarget'?: string
   'data-requirements'?: string
-  'data-doit'?: 'false' | null
+  'data-doit'?: 'false' | null  // string 'false' or null in HTML
   class?: string
   id?: string
 }
 
-// Action types
-export type ActionType = 
-  | 'button'
-  | 'highlight'
-  | 'formfill'
-  | 'navigate'
-  | 'hover'
-  | 'multistep'
-  | 'sequence'
-
-// Common requirement options
-export const COMMON_REQUIREMENTS = [
-  'exists-reftarget',
-  'navmenu-open',
-  'on-page:',
-  'is-admin',
-  'has-datasource:',
-  'has-plugin:',
-  'section-completed:',
-] as const
-
-export type CommonRequirement = typeof COMMON_REQUIREMENTS[number]
+// Re-export from constants for backward compatibility
+export { COMMON_REQUIREMENTS } from '../../constants'
+export type { ActionType, CommonRequirement } from '../../constants'
 

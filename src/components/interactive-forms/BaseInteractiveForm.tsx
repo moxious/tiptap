@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { type InteractiveFormProps, COMMON_REQUIREMENTS } from './types'
+import { type InteractiveFormProps } from './types'
+import { COMMON_REQUIREMENTS } from '../../constants'
 import './InteractiveForm.css'
 
 export interface FormField {
@@ -41,8 +42,8 @@ const BaseInteractiveForm = ({
   const [values, setValues] = useState<Record<string, any>>(() => {
     const initial: Record<string, any> = {}
     config.fields.forEach(field => {
-      if (initialValues?.[field.id] !== undefined) {
-        initial[field.id] = initialValues[field.id]
+      if (initialValues && (initialValues as any)[field.id] !== undefined) {
+        initial[field.id] = (initialValues as any)[field.id]
       } else if (field.defaultValue !== undefined) {
         initial[field.id] = field.defaultValue
       } else {

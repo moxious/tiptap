@@ -1,9 +1,9 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
-import { useEffect, useState } from 'react'
-import { type EditState } from '../types'
+import { useEffect } from 'react'
 import { formatHTML } from '../utils/htmlFormatter'
+import { useEditState } from '../hooks/useEditState'
 import Toolbar from './Toolbar'
 import { InteractiveListItem } from '../extensions/InteractiveListItem'
 import { InteractiveSpan } from '../extensions/InteractiveSpan'
@@ -17,7 +17,7 @@ interface TiptapEditorProps {
 }
 
 const TiptapEditor = ({ onUpdate }: TiptapEditorProps) => {
-  const [editState, setEditState] = useState<EditState | null>(null)
+  const { editState, startEditing, stopEditing } = useEditState()
 
   const editor = useEditor({
     extensions: [
@@ -33,16 +33,16 @@ const TiptapEditor = ({ onUpdate }: TiptapEditorProps) => {
       }),
       InteractiveClickHandler.configure({
         onEditInteractiveListItem: (attrs, pos) => {
-          setEditState({ type: 'listItem', attrs, pos })
+          startEditing('listItem', attrs, pos)
         },
         onEditSequenceSection: (attrs, pos) => {
-          setEditState({ type: 'sequence', attrs, pos })
+          startEditing('sequence', attrs, pos)
         },
         onEditInteractiveSpan: (attrs, pos) => {
-          setEditState({ type: 'span', attrs, pos })
+          startEditing('span', attrs, pos)
         },
         onEditInteractiveComment: (attrs, pos) => {
-          setEditState({ type: 'comment', attrs, pos })
+          startEditing('comment', attrs, pos)
         },
       }),
     ],
@@ -101,7 +101,7 @@ const TiptapEditor = ({ onUpdate }: TiptapEditorProps) => {
       <Toolbar 
         editor={editor} 
         editState={editState}
-        onCloseEdit={() => setEditState(null)}
+        onCloseEdit={stopEditing}
       />
       <div className="editor-wrapper">
         <EditorContent editor={editor} />
