@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Editor } from '@tiptap/react'
 import { type EditStateOrNull } from '../types'
 import HeadingDropdown from './dropdowns/HeadingDropdown'
@@ -32,13 +32,26 @@ const Toolbar = ({ editor, editState, onCloseEdit }: ToolbarProps) => {
     toolbarPopover?.type === 'sequence'
 
   // Derive anchor elements (editState takes priority over toolbar clicks)
+  // When clicking lightning bolts, use the editor wrapper as anchor for better positioning
   const interactiveAnchor = editState && ['listItem', 'span', 'comment'].includes(editState.type)
-    ? document.body
+    ? document.querySelector('.editor-wrapper') as HTMLElement
     : toolbarPopover?.type === 'interactive' ? toolbarPopover.anchor : null
   
   const sequenceAnchor = editState?.type === 'sequence'
-    ? document.body  
+    ? document.querySelector('.editor-wrapper') as HTMLElement
     : toolbarPopover?.type === 'sequence' ? toolbarPopover.anchor : null
+
+  // Debug logging for popover states when they change
+  useEffect(() => {
+    console.log('🎛️  [Toolbar] Popover states changed:', {
+      editState,
+      toolbarPopover,
+      interactivePopoverOpen,
+      sequencePopoverOpen,
+      interactiveAnchor,
+      sequenceAnchor,
+    })
+  }, [editState, toolbarPopover, interactivePopoverOpen, sequencePopoverOpen, interactiveAnchor, sequenceAnchor])
 
   if (!editor) {
     return null
